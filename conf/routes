@@ -5,6 +5,12 @@
 # Home page
 GET     /                                       Application.index
 
+# Hotel
+GET 	/hotels/list							Hotels.list
+POST 	/hotels/create							Hotels.create
+POST 	/hotels/update							Hotels.update
+POST 	/hotels/delete							Hotels.delete
+
 # Map static resources from the /app/public folder to the /public path
 GET     /public/                                staticDir:public
 
