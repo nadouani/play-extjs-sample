@@ -3,15 +3,16 @@ package controllers;
 import java.util.List;
 
 import models.Hotel;
+import play.db.jpa.JPA;
 import play.mvc.Controller;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
-import com.google.gson.JsonPrimitive;
 
 import dto.HotelsDTO;
+import dto.ResponseDTO;
 
 public class Hotels extends Controller {
 	
@@ -19,16 +20,12 @@ public class Hotels extends Controller {
 		Gson gson = new Gson();
 		HotelsDTO dto = gson.fromJson(params.all().get("body")[0], HotelsDTO.class);
 		
-		return dto!=null ? dto.hotels : null;
+		return dto!=null ? dto.data : null;
 	}
 	
 	public static void list(int limit, int start) {
 		List<Hotel> hotels = Hotel.all().fetch();
-
-		Gson gson = new Gson();
-		String data = gson.toJson(hotels);
-		
-		renderJSON("{data:" + data + "}");		
+		renderJSON(new ResponseDTO(true, "", hotels));
 	}
 
 	public static void create() {
@@ -38,11 +35,8 @@ public class Hotels extends Controller {
 			for (Hotel hotel : hotels) {
 				hotel.save();
 			}
-
-			Gson gson = new Gson();
-			String data = gson.toJson(hotels);
 			
-			renderJSON("{'success':true,'message':'The hotel(s) was create successfully', 'data':" + data + "}");
+			renderJSON(new ResponseDTO(true, "The hotel(s) was create successfully", hotels));
 		}
 	}
 
@@ -51,16 +45,9 @@ public class Hotels extends Controller {
 		
 		if (hotels != null) {
 			for (Hotel h: hotels) {
-				Hotel hotel = Hotel.findById(h.getId());
-				
-				hotel.fillFrom(h);
-				hotel.save();								
+				JPA.em().merge(h).save();
 			}
-
-			Gson gson = new Gson();
-			String data = gson.toJson(hotels);
-			
-			renderJSON("{'success':true,'message':'The hotel(s) was updated successfully', 'data':" + data + "}");
+			renderJSON(new ResponseDTO(true, "The hotel(s) was updated successfully", hotels));
 		}
 	}
 
@@ -73,8 +60,7 @@ public class Hotels extends Controller {
 			for (int i = 0; i < ids.size(); i++) {
 				Hotel.delete("from Hotel where id=?", ids.get(i).getAsLong());
 			}
-			
-			renderJSON("{'success':true,'message':'The hotel was deleted successfully'}");
+			renderJSON(new ResponseDTO(true, "The hotel was deleted successfully", null));
 		}
 	}
 }
