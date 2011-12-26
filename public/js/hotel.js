@@ -19,9 +19,10 @@ App.hotel.Grid = Ext.extend(Ext.grid.GridPanel, {
         this.viewConfig = {
             forceFit: true
         };
-
-        // relay the Store's CRUD events into this grid so these events can be conveniently listened-to in our application-code.
-        //this.relayEvents(this.store, ['destroy', 'save', 'update']);
+        
+        this.selModel = new Ext.grid.RowSelectionModel({
+        	singleSelect: false
+        });
 
         // build toolbars and buttons.
         this.cm = this.buildColumnModel();
@@ -159,11 +160,12 @@ App.hotel.Grid = Ext.extend(Ext.grid.GridPanel, {
     },
 
     onDelete : function(btn, ev) {
-    	var rec = this.getSelectionModel().getSelected();
+    	var rec = this.getSelectionModel().getSelections();
         if (!rec) {
             return false;
         }
         this.store.remove(rec);
+        this.store.save();
     }
 });
 
@@ -173,7 +175,7 @@ Ext.onReady(function() {
 
 	var reader = new Ext.data.JsonReader({
 		idProperty: 'id',
-		root: 'hotels',
+		root: 'data',
 		messageProperty: 'message',
 		successProperty: 'success',
 		fields : [

@@ -39,4 +39,8 @@ public class Hotel extends Model{
 		this.beds = hotel.beds;
 		this.stars = hotel.stars;
 	}
+	
+	public String toString(){
+		return name;
+	}
 }
